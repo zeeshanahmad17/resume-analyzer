@@ -33,3 +33,6 @@ quota_tracking.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Tests
+tests/test_data/*
