@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI-powered resume analyzer with job matching">
+    <title>AI Resume Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <!-- Upload Section -->
+    <main id="uploadSection" class="section active">
+        <div class="container">
+            <div class="hero">
+                <h1 class="glitch" data-text="AI Resume Analyzer">AI Resume Analyzer</h1>
+                <p class="subtitle">Get instant AI-powered insights on your resume's job match</p>
+            </div>
+
+            <div class="upload-card glass">
+                <div id="dropZone" class="drop-zone">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <h3>Drag & Drop Your Resume</h3>
+                    <p>or <button type="button" class="file-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button></p>
+                    <input type="file" id="fileInput" accept=".pdf,.docx,.txt,.doc" hidden>
+                    <p class="file-types">Supported: PDF, DOCX, TXT</p>
+                    <p id="fileName" class="file-name"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="jobDescription">Job Description</label>
+                    <textarea 
+                        id="jobDescription" 
+                        placeholder="Paste the job description here..."
+                        rows="6"
+                    ></textarea>
+                </div>
+
+                <button id="analyzeBtn" class="analyze-btn" disabled>
+                    <span class="btn-text">Analyze Resume</span>
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Results Section -->
+    <main id="resultsSection" class="section">
+        <div class="container">
+            <div class="results-header">
+                <h2>Analysis Results</h2>
+                <button id="newAnalysisBtn" class="secondary-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Analyze Another
+                </button>
+            </div>
+
+            <div class="scores-grid">
+                <div class="score-card glass">
+                    <div class="score-label">Match Score</div>
+                    <div class="score-circle">
+                        <svg class="score-ring" viewBox="0 0 100 100">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="matchScoreRing" class="score-ring-fill" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <div class="score-value">
+                            <span id="matchScore">0</span>%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="score-card glass">
+                    <div class="score-label">ATS Score</div>
+                    <div class="score-circle">
+                        <svg class="score-ring" viewBox="0 0 100 100">
+                            <circle class="score-ring-bg" cx="50" cy="50" r="45"></circle>
+                            <circle id="atsScoreRing" class="score-ring-fill" cx="50" cy="50" r="45"></circle>
+                        </svg>
+                        <div class="score-value">
+                            <span id="atsScore">0</span>%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-card glass">
+                    <h3>
+                        <svg class="icon success" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        Matched Skills
+                    </h3>
+                    <div id="matchedSkills" class="skills-list"></div>
+                </div>
+
+                <div class="detail-card glass">
+                    <h3>
+                        <svg class="icon warning" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                        Missing Skills
+                    </h3>
+                    <div id="missingSkills" class="skills-list"></div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div class="info-card glass">
+                    <h3>
+                        <svg class="icon success" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        Strengths
+                    </h3>
+                    <ul id="strengths" class="info-list"></ul>
+                </div>
+
+                <div class="info-card glass">
+                    <h3>
+                        <svg class="icon danger" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        Weaknesses
+                    </h3>
+                    <ul id="weaknesses" class="info-list"></ul>
+                </div>
+
+                <div class="info-card glass">
+                    <h3>
+                        <svg class="icon primary" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7z"/>
+                        </svg>
+                        Improvements
+                    </h3>
+                    <ul id="improvements" class="info-list"></ul>
+                </div>
+            </div>
+
+            <div class="reasoning-card glass">
+                <h3>
+                    <svg class="icon info" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                    </svg>
+                    Analysis Reasoning
+                </h3>
+                <p id="reasoning"></p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loader"></div>
+            <p id="loadingText">Analyzing your resume...</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
