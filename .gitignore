@@ -1,0 +1,35 @@
+# Virtual environment
+.venv/
+env/
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Uploads
+uploads/*.pdf
+uploads/*.doc
+uploads/*.docx
+uploads/*.txt
+
+# Database
+*.db
+chromedb/
+
+# Quota Tracking
+quota_tracking.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
