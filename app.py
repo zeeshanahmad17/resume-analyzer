@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 import os
 import uuid
 from services.document_parser import DocumentParser
+from services.chunker import ResumeChunker
 
 app = Flask(__name__)
 CORS(app)
@@ -33,6 +34,7 @@ def health():
     return jsonify({"status": "healthy"}), 200
 
 doc_parser = DocumentParser()
+chunker = ResumeChunker()
 
 UPLOAD_FOLDER = './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -69,12 +71,23 @@ def upload_resume():
         if not text or len(text) < 50:
             return jsonify({"error": "Could not extract text from file"}), 400
 
+        chunks = chunker.chunk_by_sections(text)
+
         return jsonify({
             "resume_id": resume_id,
             "filename": filename,
             "status": "text_extracted",
             "char_count": len(text),
             "word_count": len(text.split()),
+            "chunks":[
+                {
+                    "section": chunk["section"],
+                    "chunk_id": chunk["chunk_id"],
+                    "word_count": chunk["word_count"],
+                    "text": chunk["text"][:20]
+                }
+                for chunk in chunks
+            ],
             "text_preview": text[:300] + "..."
         }), 200
     except Exception as e:
